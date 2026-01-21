@@ -18,9 +18,54 @@ You **MUST** preserve the original business logic while improving structure.
 - **Link Fix**: 如果执行了拆分或重命名，**MUST** 全局搜索并更新所有引用了该文件的链接。
 - **Context Link**: 拆分后的子 Spec 必须在父 Spec 的 `2. Terms & Concepts` 中注册。
 
-**3. 分形原则 (Fractal Principles)**:
-- **Splitting**: 遵循 `<parent>-<child>` 命名。
-- **Atomic Naming**: 确保新文件名片段为单单词。
+**3. 标识与命名 (Identification & Naming)**:
+- **文件名即 ID**: 唯一标识符。
+- **单单词约束**: Topic 片段 **MUST** 仅为一个英文单词。禁止短语、下划线。
+    - *例外*: 通用缩写 (API, CLI) 及字典闭合复合词 (Database) 视为单单词。
+    - ✅ `spec-runtime.md`, `spec-runtime-scheduler.md`
+    - ❌ `spec-state_machine.md` -> `spec-state-machine.md`
+
+**4. 内容结构 (Structure)**:
+所有重构后的 Spec 文件 **MUST** 严格遵循以下模板。不适用章节保留标题并注 "N/A"。
+
+    ```markdown
+    # Spec: [Topic Name]
+
+    ## 1. Scope & Goals
+    - **Scope**: 核心问题与职责。
+    - **Non-Goals**: 边界与反目标。
+    - **Context**: 架构位置。
+
+    ## 2. Terms & Concepts
+    - **Glossary**: 术语表。
+    - **Core Model**: 核心模型/图示。
+    - **Composition**: 子 Spec 链接 (拆分时必须更新此项)。
+
+    ## 3. Invariants & Rules
+    - **Invariants**: 系统公理 (Always True)。
+    - **Normative Constraints**: MUST/SHOULD 约束。
+
+    ## 4. Interfaces & Contracts
+    - **Inputs/Outputs**: CLI/API/IO。
+    - **Protocols**: Schema/Format。
+
+    ## 5. Behaviors & Errors
+    - **Flows**: 流程与状态。
+    - **Errors**: 错误处理。
+
+    ## 6. Verification
+    - **Test Strategy**: 验证策略。
+    - **Test Anchors**: 测试文件链接。
+    - **Conformance Criteria**: 验收标准。
+    ```
+
+**5. 子 Spec 拆分协议 (Splitting Protocol)**:
+- **Trigger**: 文件 > 300 行 或 逻辑模块独立。
+- **Action**:
+    1. **Create**: 按命名约束创建子文件 `<parent>-<child>.md`。
+    2. **Migrate**: 将详细的 `Rules`, `Interfaces`, `Behaviors` 移动至子文件。
+    3. **Abstract**: 父文件 **MUST** 保留对子 Spec 的定义摘要、核心 Invariants 和跨组件约束。
+    4. **Link**: 父文件 `2. Terms & Concepts` 添加子 Spec 链接。
 
 ## Execution Steps
 
@@ -33,14 +78,13 @@ You **MUST** preserve the original business logic while improving structure.
     - 结构缺失 6 段式要素？
 
 ### 2. 制定策略 (Strategize)
-- **Split Strategy**: 确定哪些章节移动到子文件，哪些保留在父文件（通常保留 Summary 和 Invariants）。
-- **Rename Strategy**: 确定符合约束的新文件名。
+- **Split Strategy**: 依据 "Splitting Protocol" 确定迁移内容。
+- **Rename Strategy**: 确定符合 Constraint 3 的新文件名。
 
 ### 3. 执行重构 (Execute)
-- **Create**: 创建新文件（如 `specs/spec-runtime-logger.md`）。
-- **Migrate**: 剪切详细内容到新文件。
-- **Refine Parent**: 在父文件中添加对子文件的引用和摘要。
-- **Standardize**: 确保新旧文件都严格符合 6 段式模板。
+- **Create**: 创建新文件。
+- **Migrate & Standardize**: 剪切内容并套用 Constraint 4 的模板。
+- **Refine Parent**: 缩减父文件内容，仅保留高层抽象，并在 Section 2 添加链接。
 
 ### 4. 修复引用 (Fix References)
-- `grep` 搜索项目，更新死链。
+- `grep` 搜索项目，更新指向旧内容的死链（改为指向新子文件）。
